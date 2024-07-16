@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class PlatformRepo {
@@ -33,10 +34,12 @@ public class PlatformRepo {
         return dataSourceProxy.executeSelect(sql, new PlatformMapper(), queryParams);
     }
 
-    public Platform getPlatformById(int id) throws SQLException {
+    public Optional<Platform> getPlatformById(int id) throws SQLException {
         String sql = "SELECT * FROM platform\n" +
                 "WHERE platform.id=?";
         QueryParam[] queryParams = new QueryParam[]{new IntegerParam(id)};
-        return dataSourceProxy.executeSelect(sql, new PlatformMapper(), queryParams).get(0);
+        List<Platform> platformList = dataSourceProxy.executeSelect(sql, new PlatformMapper(), queryParams);
+
+        return platformList.isEmpty() ? Optional.empty() : Optional.of(platformList.get(0));
     }
 }

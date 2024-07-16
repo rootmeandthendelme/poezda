@@ -10,6 +10,7 @@ import ru.tututu.trains.utils.params.StringParam;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class UserRepo {
@@ -20,11 +21,11 @@ public class UserRepo {
         this.dataSourceProxy = dataSourceProxy;
     }
 
-    public User findByLogin(String login) throws SQLException {
+    public Optional<User> findByLogin(String login) throws SQLException {
         String sql = "SELECT * FROM users WHERE users.login=?";
         QueryParam[] queryParams = new QueryParam[]{new StringParam(login)};
-
         List<User> users = dataSourceProxy.executeSelect(sql, new UserMapper(), queryParams);
-        return !users.isEmpty() ? users.get(0) : null;
+
+        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 }

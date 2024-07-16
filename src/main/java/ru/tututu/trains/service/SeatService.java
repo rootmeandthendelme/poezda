@@ -3,6 +3,7 @@ package ru.tututu.trains.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.tututu.trains.entity.Carriege;
+import ru.tututu.trains.entity.CarriegeType;
 import ru.tututu.trains.model.schedule.AvailableSeat;
 import ru.tututu.trains.repo.CarriegeRepo;
 import ru.tututu.trains.repo.CarriegeTypeRepo;
@@ -36,7 +37,8 @@ public class SeatService {
             AvailableSeat availableSeat = new AvailableSeat();
             availableSeat.setAvailableSeatList(seatRepo.getNotReservedSeats(tripId, carriege.getId(), departureTime, arrivalTime));
             availableSeat.setCarriegeId(carriege.getId());
-            availableSeat.setCarriegeType(carriegeTypeRepo.getCarriegeTypeById(carriege.getCarriegeTypeId()).getType());
+            CarriegeType carriegeType = carriegeTypeRepo.getCarriegeTypeById(carriege.getCarriegeTypeId()).orElse(new CarriegeType());
+            availableSeat.setCarriegeType(carriegeType.getType());
             seats.add(availableSeat);
         }
         return seats;

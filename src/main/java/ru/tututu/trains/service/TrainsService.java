@@ -12,6 +12,7 @@ import ru.tututu.trains.repo.TrainTypeRepo;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TrainsService {
@@ -31,11 +32,14 @@ public class TrainsService {
     }
 
     public TrainResponse getTrainInformation(int trainId) throws SQLException {
-        Train train = trainRepo.getTrainById(trainId);
-        List<String> comforts = comfortRepo.getAllComfortByTrainId(trainId).stream().map(Comfort::getValue).toList();
-        TrainType trainType = trainTypeRepo.getTrainTypeById(train.getTrainTypeId());
+        Optional<Train> train = trainRepo.getTrainById(trainId);
+        if(train.isEmpty())
+            return new TrainResponse();
 
-        return aggregateTrainInfo(train, comforts, trainType);
+        List<String> comforts = comfortRepo.getAllComfortByTrainId(trainId).stream().map(Comfort::getValue).toList();
+        TrainType trainType = trainTypeRepo.getTrainTypeById(train.get().getTrainTypeId()).orElse(new TrainType());
+
+        return aggregateTrainInfo(train.get(), comforts, trainType);
     }
 
     private TrainResponse aggregateTrainInfo(Train train, List<String> comforts, TrainType trainType){

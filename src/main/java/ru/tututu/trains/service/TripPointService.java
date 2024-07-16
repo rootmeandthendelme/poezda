@@ -12,6 +12,7 @@ import ru.tututu.trains.repo.TripPointRepo;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TripPointService {
@@ -55,10 +56,14 @@ public class TripPointService {
     }
 
     private String getLocalityAndStationName(int platformId) throws SQLException {
-        Station station = stationRepo.getStationById(platformService.getPlatformById(platformId).getStationId());
-        Locality locality = localityRepo.getLocalityById(station.getLocalityId());
+        Optional<Station> station = stationRepo.getStationById(platformService.getPlatformById(platformId).getStationId());
 
-        return locality.getName() + " - " + station.getName();
+        if(station.isEmpty())
+            return "";
+
+        Locality locality = localityRepo.getLocalityById(station.get().getLocalityId()).orElse(new Locality());
+
+        return locality.getName() + " - " + station.get().getName();
     }
 
 }

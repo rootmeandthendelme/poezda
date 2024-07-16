@@ -14,13 +14,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler({AuthenticationException.class})
-    protected ResponseEntity<Object> handleAuthenticationException(RuntimeException e, WebRequest request){
-        return handleExceptionInternal(e, "\"Authentication error with msg - " + e.getMessage() + "\"", new HttpHeaders(), HttpStatus.FORBIDDEN, request);
-    }
-
     @ExceptionHandler({PSQLException.class})
     protected ResponseEntity<Object> handlePSQLException(RuntimeException e, WebRequest request){
-        return handleExceptionInternal(e, "\"SQL error with msg - " + e.getMessage() + "\"", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage(), "error during call the database");
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler({NotFoundException.class})
+    protected ResponseEntity<Object> handleNotFoundException(NotFoundException e, WebRequest request){
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, e.getMessage(), "error during call the database");
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 }

@@ -18,6 +18,6 @@ public class UserService {
     }
 
     public Optional<User> findByLogin(String login) throws SQLException {
-        return Optional.of(userRepo.findByLogin(login));
+        return userRepo.findByLogin(login);
     }
 }

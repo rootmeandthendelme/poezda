@@ -10,6 +10,8 @@ import ru.tututu.trains.utils.params.IntegerParam;
 import ru.tututu.trains.utils.params.QueryParam;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class LocalityRepo {
@@ -20,9 +22,11 @@ public class LocalityRepo {
         this.dataSourceProxy = dataSourceProxy;
     }
 
-    public Locality getLocalityById(int id) throws SQLException {
+    public Optional<Locality> getLocalityById(int id) throws SQLException {
         String sql = "SELECT * FROM locality WHERE id=?";
         QueryParam[] queryParams = new QueryParam[]{new IntegerParam(id)};
-        return dataSourceProxy.executeSelect(sql, new LocalityMapper(), queryParams).get(0);
+        List<Locality> localityList = dataSourceProxy.executeSelect(sql, new LocalityMapper(), queryParams);
+
+        return localityList.isEmpty() ? Optional.empty() : Optional.of(localityList.get(0));
     }
 }

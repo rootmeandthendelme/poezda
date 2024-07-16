@@ -9,6 +9,8 @@ import ru.tututu.trains.utils.params.IntegerParam;
 import ru.tututu.trains.utils.params.QueryParam;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class StationRepo {
@@ -19,9 +21,11 @@ public class StationRepo {
         this.dataSourceProxy = dataSourceProxy;
     }
 
-    public Station getStationById(int id) throws SQLException {
+    public Optional<Station> getStationById(int id) throws SQLException {
         String sql = "SELECT * FROM station WHERE id=?";
         QueryParam[] queryParams = new QueryParam[]{new IntegerParam(id)};
-        return dataSourceProxy.executeSelect(sql, new StationMapper(), queryParams).get(0);
+        List<Station> stationList = dataSourceProxy.executeSelect(sql, new StationMapper(), queryParams);
+
+        return stationList.isEmpty() ? Optional.empty() : Optional.of(stationList.get(0));
     }
 }

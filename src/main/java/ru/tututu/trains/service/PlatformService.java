@@ -24,6 +24,6 @@ public class PlatformService {
     }
 
     public Platform getPlatformById(int id) throws SQLException {
-        return platformRepo.getPlatformById(id);
+        return platformRepo.getPlatformById(id).orElseThrow();
     }
 }
