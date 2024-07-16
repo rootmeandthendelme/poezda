@@ -3,6 +3,7 @@ package ru.tututu.trains.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.tututu.trains.entity.Platform;
 import ru.tututu.trains.entity.Trip;
 import ru.tututu.trains.model.schedule.AvailableSeat;
 import ru.tututu.trains.model.schedule.TripInformationResponse;
@@ -49,8 +50,8 @@ public class TripService {
     }
 
     public List<TripInformationResponse> getTripsSchedule(Optional<String> date, Optional<String> trainName, String startPoint, String endPoint) throws SQLException {
-        Object[] departurePlatforms = platformService.getPlatformsArrayByLocalityName(startPoint);
-        Object[] arrivalPlatforms = platformService.getPlatformsArrayByLocalityName(endPoint);
+        List<Platform> departurePlatforms = platformService.getPlatformsArrayByLocalityName(startPoint);
+        List<Platform> arrivalPlatforms = platformService.getPlatformsArrayByLocalityName(endPoint);
         List<TripInformationResponse> responses = new ArrayList<>();
 
         for(Trip trip: tripRepo.getAllTripsByParameters(departurePlatforms,arrivalPlatforms,trainName, date)){

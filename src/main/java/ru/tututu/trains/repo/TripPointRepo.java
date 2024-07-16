@@ -2,6 +2,7 @@ package ru.tututu.trains.repo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.tututu.trains.entity.Platform;
 import ru.tututu.trains.entity.TripPoint;
 import ru.tututu.trains.mapper.TripPointMapper;
 import ru.tututu.trains.utils.DataSourceProxy;
@@ -21,7 +22,7 @@ public class TripPointRepo {
         this.dataSourceProxy = dataSourceProxy;
     }
 
-    public List<TripPoint> getRouteByTripId(int tripId, Object[] departurePlatforms, Object[] arrivalPlatforms) throws SQLException {
+    public List<TripPoint> getRouteByTripId(int tripId, List<Platform> departurePlatforms, List<Platform> arrivalPlatforms) throws SQLException {
         String sql = """
                 SELECT * FROM trip_point
                 WHERE trip_point.trip_id=?
@@ -36,9 +37,9 @@ public class TripPointRepo {
                 ORDER BY trip_point.arrival_time""";
         QueryParam[] queryParams = new QueryParam[]{
                 new IntegerParam(tripId),
-                new ArrayParam(dataSourceProxy.createArrayOf("INT", departurePlatforms)),
+                new ArrayParam(dataSourceProxy.createArrayOf("INT", departurePlatforms.stream().map(Platform::getId).toArray(Object[]::new))),
                 new IntegerParam(tripId),
-                new ArrayParam(dataSourceProxy.createArrayOf("INT", arrivalPlatforms)),
+                new ArrayParam(dataSourceProxy.createArrayOf("INT", arrivalPlatforms.stream().map(Platform::getId).toArray(Object[]::new))),
                 new IntegerParam(tripId),
         };
         return dataSourceProxy.executeSelect(sql, new TripPointMapper(), queryParams);

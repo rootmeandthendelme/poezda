@@ -3,6 +3,7 @@ package ru.tututu.trains.repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.util.ArrayUtils;
+import ru.tututu.trains.entity.Platform;
 import ru.tututu.trains.entity.Trip;
 import ru.tututu.trains.mapper.TripMapper;
 import ru.tututu.trains.utils.DataSourceProxy;
@@ -25,10 +26,10 @@ public class TripRepo {
         this.dataSourceProxy = dataSourceProxy;
     }
 
-    public List<Trip> getAllTripsByParameters(Object[] departurePlatforms, Object[] arrivalPlatforms, Optional<String> trainName, Optional<String> date) throws SQLException {
+    public List<Trip> getAllTripsByParameters(List<Platform> departurePlatforms, List<Platform> arrivalPlatforms, Optional<String> trainName, Optional<String> date) throws SQLException {
         List<QueryParam> params = new ArrayList<>();
-        params.add(new ArrayParam(dataSourceProxy.createArrayOf("INT", departurePlatforms)));
-        params.add(new ArrayParam(dataSourceProxy.createArrayOf("INT", arrivalPlatforms)));
+        params.add(new ArrayParam(dataSourceProxy.createArrayOf("INT", departurePlatforms.stream().map(Platform::getId).toArray(Object[]::new))));
+        params.add(new ArrayParam(dataSourceProxy.createArrayOf("INT", arrivalPlatforms.stream().map(Platform::getId).toArray(Object[]::new))));
         String sqlWhereClause="";
 
         if(trainName.isPresent()){

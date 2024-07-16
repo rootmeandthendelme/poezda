@@ -49,8 +49,8 @@ public class TripPointService {
     }
 
     private List<TripPoint> getTripPoints(int tripId, String departureLocality, String arrivalLocality) throws SQLException{
-        Object[] departurePlatforms = platformService.getPlatformsArrayByLocalityName(departureLocality);
-        Object[] arrivalPlatforms = platformService.getPlatformsArrayByLocalityName(arrivalLocality);
+        List<Platform> departurePlatforms = platformService.getPlatformsArrayByLocalityName(departureLocality);
+        List<Platform> arrivalPlatforms = platformService.getPlatformsArrayByLocalityName(arrivalLocality);
 
         return tripPointRepo.getRouteByTripId(tripId, departurePlatforms, arrivalPlatforms);
     }

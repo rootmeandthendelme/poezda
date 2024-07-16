@@ -6,6 +6,7 @@ import ru.tututu.trains.entity.Platform;
 import ru.tututu.trains.repo.PlatformRepo;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @Service
 public class PlatformService {
@@ -16,11 +17,8 @@ public class PlatformService {
         this.platformRepo = platformRepo;
     }
 
-    public Object[] getPlatformsArrayByLocalityName(String localityName) throws SQLException {
-        return platformRepo.getAllPlatformsByLocalityName(localityName)
-                .stream()
-                .map(Platform::getId)
-                .toArray(Object[]::new);
+    public List<Platform> getPlatformsArrayByLocalityName(String localityName) throws SQLException {
+        return platformRepo.getAllPlatformsByLocalityName(localityName);
     }
 
     public Platform getPlatformById(int id) throws SQLException {

@@ -17,7 +17,7 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public Optional<User> findByLogin(String login) throws SQLException {
-        return userRepo.findByLogin(login);
+    public User findByLogin(String login) throws SQLException {
+        return userRepo.findByLogin(login).orElseThrow();
     }
 }
