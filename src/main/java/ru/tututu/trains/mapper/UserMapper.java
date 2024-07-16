@@ -1,7 +1,7 @@
-package ru.tututu.trains.repo;
+package ru.tututu.trains.mapper;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public class TrainComfortRepo {
+public class PassengerMapper{
 }
