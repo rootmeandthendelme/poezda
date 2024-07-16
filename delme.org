@@ -1,0 +1,111 @@
+* Some existential thoughts on questions of the existence of the material universe
+** Optional parameter's
+Can add a line in repo parameter that is 'WHERE CLAUSE'. And in repo: if line is not empty, add where and vice versa
+
+** Booking problem
+Booking problem can be solved via searching time segments
+
+* Sqls
+** Get trips information
+*** Get platforms in locality
+#+BEGIN_SRC sql
+SELECT platform.id FROM platform
+JOIN station ON platform.station_id=station.id
+JOIN locality ON station.locality_id=locality.id
+WHERE locality.name={LOCALITY_NAME}
+#+END_SRC
+
+*** Retrieve all trips by train, date, containing localityA and localityB
+#+BEGIN_SRC sql
+SELECT presumably_departure.trip_id FROM trip_point presumably_departure
+JOIN trip_point expected_arrival
+	ON presumably_departure.id!=expected_arrival.id
+	AND presumably_departure.trip_id=expected_arrival.trip_id
+	AND presumably_departure.platform_id IN ({DEPARTURE_PLATFORMS_IDS})
+	AND expected_arrival.platform_id IN ({ARRIVAL_PLATFORMS_IDS})
+	AND presumably_departure.departure_time<expected_arrival.arrival_time
+	AND presumably_departure.trip_id IN (
+		SELECT trip.id FROM trip
+		WHERE trip.travel_date>=CURRENT_DATE
+            AND trip.train_id=(
+				SELECT train.id FROM train
+				WHERE train.name={TRAIN_NAME}
+		    ) AND trip.travel_date={TRAVEL_DATE}
+	)
+#+END_SRC
+
+*** Get trip points of trip from A to B ordered by time
+#+BEGIN_SRC sql
+SELECT * FROM trip_point
+WHERE trip_point.trip_id=2
+AND trip_point.arrival_time>=(
+	SELECT trip_point.arrival_time FROM trip_point WHERE trip_point.platform_id IN (5)
+	AND trip_point.trip_id=2
+)
+AND trip_point.arrival_time<=(
+	SELECT trip_point.arrival_time FROM trip_point WHERE trip_point.platform_id IN (21)
+	AND trip_point.trip_id=2
+)
+ORDER BY trip_point.arrival_time
+#+END_SRC
+
+*** Find reserved seats
+#+BEGIN_SRC sql
+SELECT reservation.id, start_time.arrival_time AS start_time, end_time.arrival_time AS end_time FROM reservation
+JOIN trip_point start_time ON start_time.id=reservation.startpoint_id
+JOIN trip_point end_time ON end_time.id=reservation.endpoint_id
+WHERE (reservation.startpoint_id IN({TRIP_POINTS}) OR reservation.endpoint_id IN({TRIP_POINTS}))
+AND ((end_time.arrival_time>{START_TIME} AND end_time.arrival_time<{END_TIME})
+	OR ((start_time.arrival_time>{START_TIME} AND start_time.arrival_time<{END_TIME}))
+	OR ((start_time.arrival_time<{START_TIME} AND end_time.arrival_time>{END_TIME})))
+#+END_SRC
+
+*** Get carrieges of train
+#+BEGIN_SRC sql
+SELECT * FROM carriege
+WHERE carriege.train_id={TRAIN_ID}
+#+END_SRC
+
+
+*** Find free seats
+#+BEGIN_SRC sql
+SELECT seat.id FROM seat
+WHERE
+seat.carriege_id = {{CARRIEGE_ID}}
+AND seat_id NOT IN (
+	// RESERVED SEATS
+)
+#+END_SRC
+
+CREATE FUNCTION seat_availability()
+   RETURNS TRIGGER
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+	trip_id integer = 0;
+	departure_time time;
+	arrival_time time;
+	available_seat_id integer = -1;
+BEGIN
+	SELECT trip_point.trip_id INTO trip_id FROM trip_point WHERE trip_point.id=NEW.startpoint_id;
+	SELECT trip_point.arrival_time INTO departure_time FROM trip_point WHERE trip_point.id=NEW.startpoint_id;
+	SELECT trip_point.arrival_time INTO arrival_time FROM trip_point WHERE trip_point.id=NEW.endpoint_id;
+
+	SELECT seat.id INTO available_seat_id FROM seat
+          WHERE seat.id=NEW.seat_id AND seat.id NOT IN(
+                	SELECT seat.id FROM reservation
+                	JOIN trip_point start_time ON start_time.id=reservation.startpoint_id AND start_time.trip_id=trip_id
+                	JOIN trip_point end_time ON end_time.id=reservation.endpoint_id AND end_time.trip_id=trip_id
+                	JOIN seat ON seat.id=reservation.seat_id
+               		WHERE(((end_time.arrival_time>=departure_time AND end_time.arrival_time<=arrival_time)
+                	OR ((start_time.arrival_time>=departure_time AND start_time.arrival_time<=arrival_time))
+                	OR ((start_time.arrival_time<=departure_time AND end_time.arrival_time>=arrival_time))))
+		  );
+
+	IF NOT FOUND THEN
+		raise exception 'seat % is not available', NEW.seat_id;
+	ELSE
+		RETURN NEW;
+	END IF;
+END;
+$$
