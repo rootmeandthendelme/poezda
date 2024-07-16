@@ -5,3 +5,6 @@ spring.datasource.username={USERNAME}
 spring.datasource.url=jdbc:postgresql://localhost:5432/{DBNAME}
 spring.datasource.password={PASSWORD}
 spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Security
+security.jwt.secret-key={SECRET}

@@ -6,6 +6,7 @@ import ru.tututu.trains.mapper.ResultSetMapper;
 import ru.tututu.trains.utils.params.QueryParam;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +30,12 @@ public class DataSourceProxy {
         return mapResultSet(preparedStatement.getResultSet(), resultSetMapper);
     }
 
+    public void executeDelete(String sql,QueryParam... params) throws SQLException {
+        PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(sql);
+        setParams(preparedStatement, params);
+        preparedStatement.execute();
+    }
+
     private void setParams(PreparedStatement preparedStatement, QueryParam... params) throws SQLException {
         for(int i =0; i < params.length ; i++){
             params[i].setQueryParamValueToStatement(preparedStatement, i+1);
@@ -43,5 +50,9 @@ public class DataSourceProxy {
         }
 
         return list;
+    }
+
+    public Array createArrayOf(String type, Object[] objects) throws SQLException {
+        return dataSource.getConnection().createArrayOf(type, objects);
     }
 }
