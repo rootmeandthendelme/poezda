@@ -3,6 +3,7 @@ package ru.tututu.trains.repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.tututu.trains.entity.Reservation;
+import ru.tututu.trains.entity.TripPoint;
 import ru.tututu.trains.exceptions.NotFoundException;
 import ru.tututu.trains.mapper.ReservationMapper;
 import ru.tututu.trains.utils.DataSourceProxy;
@@ -11,6 +12,7 @@ import ru.tututu.trains.utils.params.QueryParam;
 import ru.tututu.trains.utils.params.StringParam;
 
 import java.sql.SQLException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +43,6 @@ public class ReservationRepo {
     }
 
     public void deleteReservation(int id) throws SQLException {
-        if(findReservationById(id).isEmpty())
-            throw new NotFoundException("reservation with id " + id + " not found");
 
         String sql = """
                 DELETE FROM reservation

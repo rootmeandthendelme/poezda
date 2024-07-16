@@ -3,7 +3,9 @@ package ru.tututu.trains.repo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.tututu.trains.entity.Platform;
+import ru.tututu.trains.entity.Train;
 import ru.tututu.trains.entity.TripPoint;
+import ru.tututu.trains.mapper.TrainMapper;
 import ru.tututu.trains.mapper.TripPointMapper;
 import ru.tututu.trains.utils.DataSourceProxy;
 import ru.tututu.trains.utils.params.ArrayParam;
@@ -12,6 +14,7 @@ import ru.tututu.trains.utils.params.QueryParam;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class TripPointRepo {
@@ -43,5 +46,14 @@ public class TripPointRepo {
                 new IntegerParam(tripId),
         };
         return dataSourceProxy.executeSelect(sql, new TripPointMapper(), queryParams);
+    }
+
+    public Optional<TripPoint> getTripById(int id) throws SQLException {
+        String sql = "SELECT * FROM trip_point\n" +
+                "WHERE id=?";
+        QueryParam[] queryParams = new QueryParam[]{new IntegerParam(id)};
+        List<TripPoint> tripPoints = dataSourceProxy.executeSelect(sql, new TripPointMapper(), queryParams);
+
+        return tripPoints.isEmpty() ? Optional.empty() : Optional.of(tripPoints.get(0));
     }
 }

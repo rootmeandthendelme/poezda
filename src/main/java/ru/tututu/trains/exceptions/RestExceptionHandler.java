@@ -14,6 +14,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler({RuntimeException.class})
+    protected ResponseEntity<Object> handleRuntimeException(RuntimeException e, WebRequest request){
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage(), "");
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
     @ExceptionHandler({PSQLException.class})
     protected ResponseEntity<Object> handlePSQLException(RuntimeException e, WebRequest request){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage(), "error during call the database");
